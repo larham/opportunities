@@ -1,0 +1,11 @@
+*.iml
+opportunities.properties
+opportunities/
+.DS_Store
+.idea/
+.venv
+opportunities.egg-info/
+dist/
+build/
+.vscode/
+opportunities-2023*
