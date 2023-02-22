@@ -1,5 +1,5 @@
 # Opportunities
-## A means to monitor new volunteer opportunities on Timecounts.com 
+## Monitor new volunteer opportunities at Timecounts.com 
 
 The Timecounts™ website provides a way to organize volunteers.
 

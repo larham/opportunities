@@ -23,16 +23,14 @@ from webdriver_setup import get_webdriver_for
 
 OPPORTUNITIES_URL = "https://timecounts.org/%s/opportunities/events"
 LOGIN_URL = "https://timecounts.org/login"
-# WEEK_SECS = 604800  # 1 week in seconds
+EVENT_URL = 'https://timecounts.org/%s/events/%s'
 USER_AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 12_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.0.0 Safari/537.36'
 DOWNLOAD_DIR = os.path.dirname(os.path.abspath(
     __file__)) + "/opportunities/"
-TMP_DOWNLOAD_FOLDER = "/tmp/opportunities_downloads"
 FAILED_LOGIN_RESULT = "/tmp/post_login_result.html"
 UTC_ZONE = tz.gettz('UTC')
 PAC_ZONE = tz.gettz('America/Los_Angeles')
 OPPORTUNITIES_FILE_BASE = "opportunities-"
-EVENT_URL = 'https://timecounts.org/%s/events/%s'
 
 
 def main():
@@ -110,13 +108,6 @@ def parseTimecounts(content):
 
 
 def ensureDirs():
-    if not os.path.exists(TMP_DOWNLOAD_FOLDER):
-        os.mkdir(TMP_DOWNLOAD_FOLDER)
-    else:
-        files = os.listdir(TMP_DOWNLOAD_FOLDER)
-        for f in files:
-            os.remove(os.path.join(TMP_DOWNLOAD_FOLDER, f))
-
     if not os.path.exists(DOWNLOAD_DIR):
         os.mkdir(DOWNLOAD_DIR)
 
@@ -210,7 +201,6 @@ def get_browser():
     options.add_argument('no-sandbox')
     options.add_argument('disable-dev-shm-usage')
     options.add_argument(f'user-agent={USER_AGENT}')
-    prefs = {"download.default_directory": TMP_DOWNLOAD_FOLDER}
     options.add_experimental_option("prefs", prefs)
     # browser.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS)
     return get_webdriver_for("chrome", options=options)
