@@ -76,6 +76,7 @@ def main():
             event = current_events[key]
             time_str = event["pac_time"].strftime('%a., %b. %d, (%m/%d/%Y)')
             print(event["name"], "on", time_str, ',', EVENT_URL % (org, key))
+            print()
 
 
 def parseTimecounts(content):
@@ -201,7 +202,7 @@ def get_browser():
     options.add_argument('no-sandbox')
     options.add_argument('disable-dev-shm-usage')
     options.add_argument(f'user-agent={USER_AGENT}')
-    options.add_experimental_option("prefs", prefs)
+    # options.add_experimental_option("prefs", prefs)
     # browser.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS)
     return get_webdriver_for("chrome", options=options)
 

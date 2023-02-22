@@ -49,4 +49,4 @@ To use a properties file, invoke Opportunity Alerts and supply the path to your 
 ## Disclaimer
 
 Timecounts™ is a registered trademark of Timecounts Inc.
-This Opportunity Alerts software is NOT affiliated with Timecounts Inc.
+This Opportunity software is NOT affiliated with Timecounts Inc.
