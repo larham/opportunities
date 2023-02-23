@@ -72,10 +72,12 @@ def main():
         if not prev_events:
             sys.exit(0)  # first time running comparison
 
-        for key in diff:
-            event = current_events[key]
+        difflist = [current_events[id] for id in diff]
+        difflist.sort(key=lambda x: x['pac_time'])
+        for event in difflist:
             time_str = event["pac_time"].strftime('%a., %b. %d, (%m/%d/%Y)')
-            print(event["name"], "on", time_str, ',', EVENT_URL % (org, key))
+            print(event["name"], "on", time_str, ',',
+                  EVENT_URL % (org, event['id']))
             print()
 
 
