@@ -4,7 +4,6 @@ import configparser
 import datetime
 import getpass
 import os
-import shutil
 import sys
 import time
 import re
@@ -19,7 +18,6 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from webdriver_setup import get_webdriver_for
 
-# Program for parsing opportunities data from the Timecounts.com web site.
 
 OPPORTUNITIES_URL = "https://timecounts.org/%s/opportunities/events"
 LOGIN_URL = "https://timecounts.org/login"
@@ -35,9 +33,12 @@ OPPORTUNITIES_FILE_BASE = "opportunities-"
 
 def main():
     """
-    Download current opportunities, compare against last changed. 
-    Only write to standard out if there is an error or a change.
-    Only save a new file if there is a change.
+    Program for parsing opportunities data from the Timecounts.com web site.
+    Use javascript in headless browser to login.
+    Compare current opportunities against last remembered page.
+    Write errors and progress output to stderr.
+    Write to standard out ONLY if a change was detected.
+    Save contents of opportunities page to a new file ONLY if a change was detected.
     """
     browser = get_browser()
     user, password, org = get_user_pass()
@@ -47,38 +48,49 @@ def main():
 
     login(browser, LOGIN_URL, user, password)
 
-    # redirect after login doesn't seem to happen?
-    # perhaps this will fail too if login failed?
+    # why no redirect after login?
+    # assume getting opps page will fail too if login failed
     browser.get(OPPORTUNITIES_URL % org)
 
-    # todo was more clear this was useful when redirect happened
+    # todo this test was more useful when redirect happened
     if not is_logged_in(browser):
-        print("login unsuccessful")
+        errprint("login unsuccessful")
         sys.exit(1)
 
     content = str(browser.page_source)
 
     if not "Events" in content:  # todo is there a better validation?
-        print("Cannot find 'Events' in content at: " + OPPORTUNITIES_URL)
+        errprint("Cannot find 'Events' in content at: " + OPPORTUNITIES_URL)
         sys.exit(1)
 
     current_events = parseTimecounts(content)
     prev_events = parseTimecounts(prev_content)
 
-    # this set comparison ignores any old events which were expired by date
+    # a set comparison in this direction will ignore any events in 'prev' which were expired by date
     diff = set(current_events.keys()) - set(prev_events.keys())
     if diff:
         save_page(content)
         if not prev_events:
+            errprint(
+                "Initial results were recorded successfully. Please run again later to compare.")
             sys.exit(0)  # first time running comparison
 
-        difflist = [current_events[id] for id in diff]
-        difflist.sort(key=lambda x: x['pac_time'])
-        for event in difflist:
-            time_str = event["pac_time"].strftime('%a., %b. %d, (%m/%d/%Y)')
-            print(event["name"], "on", time_str, ',',
-                  EVENT_URL % (org, event['id']))
-            print()
+        print_diff([current_events[id] for id in diff], org)
+    else:
+        errprint("no change")
+
+
+def print_diff(list, org):
+    # print to stdout all changes that were found
+    list.sort(key=lambda x: x['pac_time'])
+    for event in list:
+        time_str = event["pac_time"].strftime('%a., %b. %d, (%m/%d/%Y)')
+        print(event["name"], "on", time_str, ',',
+              EVENT_URL % (org, event['id']), '\n')
+
+
+def errprint(*args, **kwargs):
+    print(*args, file=sys.stderr, **kwargs)
 
 
 def parseTimecounts(content):
@@ -91,13 +103,13 @@ def parseTimecounts(content):
     match = re.search(
         r'var App = window.App = new TimecountsApp\((.*)\);', content)
     if not match:
-        print("cannot find text in page starting with 'var App = window.App = new TimecountsApp'")
+        errprint(
+            "cannot find text in page starting with 'var App = window.App = new TimecountsApp'")
         sys.exit(1)
 
     found = match.group(1)
     parsed = json.loads(found)
     eventMap = parsed["dehydrated_store"]["api"]["models"]
-    # print("found ", len(eventMap)-2, " events")
     for key, v in eventMap.items():
         if key[0:5] == "Event":
             name = v["attributes"]["name"]
@@ -105,7 +117,6 @@ def parseTimecounts(content):
             utc = dateutil.parser.isoparse(v["attributes"]["start_at"])
             utc = utc.replace(tzinfo=UTC_ZONE)  # tell date it is utc
             pac_time = utc.astimezone(PAC_ZONE)
-            # print(id, ":", name, pac_time)
             events[id] = {'name': name, 'pac_time': pac_time, 'id': id}
     return events
 
@@ -123,7 +134,7 @@ def prompt_login_creds():
 
 
 def login(browser, url, user, password):
-    # print("attempting to log in...")
+    errprint("attempting to log in...")
     browser.get(url)
     # wait for full rendering
     submit = WebDriverWait(browser, 15).until(
@@ -138,7 +149,7 @@ def login(browser, url, user, password):
     passwd.send_keys(password)
     submit.click()
     WebDriverWait(browser, 15).until(EC.url_changes(browser.current_url))
-    # print("url after login: %s" % browser.current_url)
+    errprint("url after login: %s" % browser.current_url)
 
 
 def pretty_datetime():
@@ -193,7 +204,8 @@ def is_logged_in(browser):
     else:
         with open(FAILED_LOGIN_RESULT, 'w+') as f:
             f.write(browser.page_source)
-            print("failed login result page is at %s" % FAILED_LOGIN_RESULT)
+            errprint("failed login result page is at %s" % FAILED_LOGIN_RESULT)
+            sys.exit(1)
 
     return success
 
@@ -215,7 +227,7 @@ def get_user_pass():
     org = ""
     if len(sys.argv) > 1:
         if not os.path.exists(sys.argv[1]):
-            print("cannot find file: %s" % sys.argv[1])
+            errprint("cannot find file: %s" % sys.argv[1])
             sys.exit(1)
         config = configparser.RawConfigParser()
         config.read(sys.argv[1])
@@ -224,7 +236,7 @@ def get_user_pass():
             password = config.get('Opportunities', 'password')
             org = config.get('Opportunities', 'org')
         except Exception:
-            print("""
+            errprint("""
 Expected file to have a header and 2 required entries like:
 
 [Opportunities]

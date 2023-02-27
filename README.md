@@ -22,11 +22,11 @@ Requirements for pip modules are listed in `setup.py`. The command to install/up
 
 The command to run Opportunities is:
 
-`python timecounts.py`
+`python opportunities.py`
 
 The program will prompt you for your username, password, and organization.  
 
-Your organization name is lowercase, and instead of any spaces, may be hyphenated. Find your org name in the URL of your "hub" at Timecounts.com
+Your organization name (org name) is lowercase, and instead of any spaces, may be hyphenated. Find your org name in the URL of your "hub" at Timecounts.com. For example, in the hub URL `https://timecounts.org/my-nice-hub/me`, the org name is 'my-nice-hub'.
 
 The first time you run the program, there will be no output since there is no comparison history yet. The next time you run it, it will have a comparison, and will show new opportunities if there are any.
 
