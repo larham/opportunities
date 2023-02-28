@@ -9,11 +9,11 @@ import configparser
 
 def main():
     """
-    Using google forms via command line ( https://yaz.in/p/submitting-a-google-form-using-the-command-line/ ),
+    In order to notify via email when new opportunities are found, use Google forms via command line ( https://yaz.in/p/submitting-a-google-form-using-the-command-line/ ),
 
     * run diff program
-    * send any errors to google forms
-    * send any changes to google forms
+    * send any errors to google form
+    * send any changes to google form
     * do not send anything if there are no changes and no error
     """
     url, param = get_url()
@@ -22,12 +22,10 @@ def main():
                           capture_output=True)
 
     if call.returncode != 0:
-        # print("sending error...")
         data = parse.urlencode({param: call.stderr}).encode()
         req = request.Request(url, data=data)  # makes the method "POST"
         request.urlopen(req)
     elif len(call.stdout) > 1:
-        # print("sending diff...")
         data = parse.urlencode({param: call.stdout}).encode()
         req = request.Request(url, data=data)  # makes the method "POST"
         request.urlopen(req)
@@ -40,7 +38,6 @@ def errprint(*args, **kwargs):
 def get_url():
     url = ""
     param = ""
-    print("args: ", len(sys.argv))
     if len(sys.argv) == 1:
         errprint("Please supply a path to a parameters file")
         sys.exit(1)

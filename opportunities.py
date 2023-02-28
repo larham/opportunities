@@ -262,9 +262,10 @@ def get_previously_downloaded_events():
         with open(filename, 'r') as f:
             prev_content = f.read()
 
-    # delete unused previous N;
-    while len(files) > 24:
+    # delete previous N to leave most recent
+    while len(files) > 10:
         os.remove(os.path.join(DOWNLOAD_DIR, files[0]))
+        del files[0]
     return prev_content
 
 
