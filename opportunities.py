@@ -94,9 +94,12 @@ def errprint(*args, **kwargs):
 
 
 def parseTimecounts(content):
-    events = {}
+    """
+    This method may break if Timecounts.com changes their content!!!!
+    """
     if not content:
-        return events
+        return {}
+    events = {}
 
     # regex to parse "App" json from Timecounts page
     # ASSUMES that all of json is contained on a single line

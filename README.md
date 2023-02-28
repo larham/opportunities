@@ -12,7 +12,7 @@ Some New Event on Sat., Feb. 18, (02/18/2023) , https://timecounts.org/my-hub-na
 Another New Event on Sat., Feb. 25, (02/25/2023) , https://timecounts.org/my-hub-name/events/54321
 ```
 
-## How to run the program
+## How to run the program `opportunities.py` to see if there are new opportunties
 
 The program requires python version 3+, which on a mac you can install with `brew install python3` (assuming `homebrew` already installed). For a more automated approach, use `direnv`, for which a dotfile is included.
 
@@ -32,8 +32,7 @@ The first time you run the program, there will be no output since there is no co
 
 ## Properties file
 
-Although Opportunity Alerts can prompt you for your login to timecounts.com, you may wish to create a properties 
-file so that you can rerun it more easily. The format for the properties file is like this:
+Although Opportunities can prompt you for your login to timecounts.com, you may wish to create a properties file so that you can rerun it more easily. The format for the properties file is like this:
 
 ```properties
 [Opportunities]
@@ -42,11 +41,30 @@ password=mysecretpassword
 org=my-org-name
 ```
 
-To use a properties file, invoke Opportunity Alerts and supply the path to your properties file as the first argument, like so: 
+To use a properties file, invoke Opportunity and supply the path to your properties file as the first argument, like so: 
 
-`python opportunities.py <my properties file>`
+`./opportunities.py <my properties file>`
+
+## How to run the notifier program `notify.py`
+
+An additional program, `notify.py`, is provided to run the `opportunities.py` program and send an email, by way of a Google™ Form entry. In other words, if there is a new opportunity, the `notify.py` program will send an entry to a Google Form that you specify. That form, in turn, can send you an email.
+
+You can [learn about Google Forms](https://support.google.com/docs/answer/6281888?hl=en&co=GENIE.Platform%3DDesktop) and create one with a 'Long Answer' type of survey question (multiple lines are possible in the answers). Also enable it to email you when new entries arrive. If you then determine the URL for this survey, and the [name of that 'Long Answer' parameter](https://yaz.in/p/submitting-a-google-form-using-the-command-line/), you can add them to a properties file like this:
+
+```properties
+[Cron]
+param=entry.12345
+url=https://docs.google.com/blahblah/formResponse?usp=pp_url&submit=Submit
+```
+
+Invoking the notifier is then as:
+
+`./notify.py opportunities.properties`
+
+You may want to make a `cron` job to run this periodically.
 
 ## Disclaimer
 
 Timecounts™ is a registered trademark of Timecounts Inc.
 This Opportunity software is NOT affiliated with Timecounts Inc.
+Google is a trademark of Google, Inc.
