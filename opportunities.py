@@ -29,6 +29,7 @@ FAILED_LOGIN_RESULT = "/tmp/post_login_result.html"
 UTC_ZONE = tz.gettz('UTC')
 PAC_ZONE = tz.gettz('America/Los_Angeles')
 OPPORTUNITIES_FILE_BASE = "opportunities-"
+NUM_OLD_FILES_PRESERVED=10
 
 
 def main():
@@ -255,6 +256,7 @@ password=mysecretpassword
 
 def get_previously_downloaded_events():
     prev_content = None
+    # filenames are sortable resulting in datetime order, ascending
     files = natsort.natsorted(os.listdir(DOWNLOAD_DIR))
     if len(files) > 0:
         last = files[-1]
@@ -262,8 +264,9 @@ def get_previously_downloaded_events():
         with open(filename, 'r') as f:
             prev_content = f.read()
 
-    # delete previous N to leave most recent
-    while len(files) > 10:
+    # SIDE EFFECT!
+    # delete oldest to leave most recent N files
+    while len(files) > NUM_OLD_FILES_PRESERVED:
         os.remove(os.path.join(DOWNLOAD_DIR, files[0]))
         del files[0]
     return prev_content
