@@ -29,7 +29,7 @@ FAILED_LOGIN_RESULT = "/tmp/post_login_result.html"
 UTC_ZONE = tz.gettz('UTC')
 PAC_ZONE = tz.gettz('America/Los_Angeles')
 OPPORTUNITIES_FILE_BASE = "opportunities-"
-NUM_OLD_FILES_PRESERVED=10
+NUM_OLD_FILES_PRESERVED = 10
 
 
 def main():
@@ -202,10 +202,10 @@ def is_logged_in(browser):
     # a redirect to a page with a login means that you have NOT successfully logged in.
     # a page with a login has "Sign In" in text.
     success = "Sign in to Timecounts" not in str(browser.page_source)
-    if success:
-        with open('/tmp/opportunities_successful_login_result.html', 'w+') as f:
-            f.write(browser.page_source)
-    else:
+    if not success:
+        # with open('/tmp/opportunities_successful_login_result.html', 'w+') as f:
+        # f.write(browser.page_source)
+        # else:
         with open(FAILED_LOGIN_RESULT, 'w+') as f:
             f.write(browser.page_source)
             errprint("failed login result page is at %s" % FAILED_LOGIN_RESULT)
