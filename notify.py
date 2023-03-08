@@ -29,6 +29,8 @@ def main():
         data = parse.urlencode({param: call.stdout}).encode()
         req = request.Request(url, data=data)  # makes the method "POST"
         request.urlopen(req)
+    else:
+        print(call.stderr)  # echo progress output to stderr
 
 
 def errprint(*args, **kwargs):

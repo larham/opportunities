@@ -4,6 +4,7 @@ opportunities/
 .DS_Store
 .idea/
 .venv
+.python-version
 opportunities.egg-info/
 dist/
 build/
