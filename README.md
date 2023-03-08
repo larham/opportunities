@@ -12,13 +12,19 @@ Some New Event on Sat., Feb. 18, (02/18/2023) , https://timecounts.org/my-hub-na
 Another New Event on Sat., Feb. 25, (02/25/2023) , https://timecounts.org/my-hub-name/events/54321
 ```
 
-## How to run the program `opportunities.py` to see if there are new opportunities
+## Installation
+On ubuntu linux, the provided `./install_python_selenium.sh` adds the python & selenium tools necessary.
 
-The program requires python version 3+, which on a mac you can install with `brew install python3` (assuming `homebrew` already installed). For a more automated approach, use `direnv`, for which a dotfile is included.
+On a mac OS you can install with `brew install python3` (assuming `homebrew` is already installed). 
 
-Requirements for pip modules are listed in `setup.py`. The command to install/update all modules is:
+On any platform, the `direnv` tool is recommended 
+since a dotfile script is included to help automation.
+
+Requirements for python pip modules are listed in `setup.py`. The command to install/update all modules is:
 
 `python setup.py install`
+
+## How to run the program `opportunities.py` to see if there are new opportunities
 
 The command to run Opportunities is:
 
@@ -41,7 +47,7 @@ password=mysecretpassword
 org=my-org-name
 ```
 
-To use a properties file, invoke Opportunity and supply the path to your properties file as the first argument, like so: 
+To use a properties file, invoke `opportunity.py` and supply the path to your properties file as the first argument, like so: 
 
 `./opportunities.py <my properties file>`
 
@@ -61,10 +67,17 @@ Invoking the notifier is then as:
 
 `./notify.py opportunities.properties`
 
-You may want to make a `cron` job to run this periodically.
+## Cron
+You may want to make a `cron` job to run this periodically. A provided script `cron.sh` helps with the complications of path and output of cron jobs. It assumes that the current directory is set correctly. A cron job something like the following will invoke it hourly between 9am and 10pm.
 
-## Disclaimer
+```
+LOG=/tmp/opportunities.log
+INSTALL_DIR=/path/to/opportunities/
+0 9-22 * * * date > $LOG && cd $INSTALL_DIR >> $LOG 2>&1  && /usr/bin/bash $INSTALL_DIR/cron.sh >> $LOG 2>&1
+```
+
+## Disclaimers
 
 Timecounts™ is a registered trademark of Timecounts Inc.
-This Opportunity software is NOT affiliated with Timecounts Inc.
+This Opportunity software and its authors are NOT affiliated with Timecounts Inc.
 Google is a trademark of Google, Inc.
