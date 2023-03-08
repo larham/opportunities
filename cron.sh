@@ -1,4 +1,4 @@
-#! /bin/bash
+#!/bin/bash
 
 # cron script, expecting to be run FROM CORRECT current directory
 # run via something like: 0 9-22 * * * date > $LOG && cd $INSTALL_DIR >> $LOG 2>&1  && /usr/bin/bash $INSTALL_DIR/cron.sh >> $LOG 2>&1
