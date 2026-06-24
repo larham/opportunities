@@ -30,6 +30,7 @@ UTC_ZONE = tz.gettz('UTC')
 PAC_ZONE = tz.gettz('America/Los_Angeles')
 OPPORTUNITIES_FILE_BASE = "opportunities-"
 NUM_OLD_FILES_PRESERVED = 10
+BROWSER_CACHE_DIR = "/tmp/timecounts_browser_cache"
 
 
 def main():
@@ -47,16 +48,17 @@ def main():
 
     prev_content = get_previously_downloaded_events()
 
-    login(browser, LOGIN_URL, user, password)
-
-    # why no redirect after login?
-    # assume getting opps page will fail too if login failed
     browser.get(OPPORTUNITIES_URL % org)
 
-    # todo this test was more useful when redirect happened
     if not is_logged_in(browser):
-        errprint("login unsuccessful")
-        sys.exit(1)
+        login(browser, LOGIN_URL, user, password)
+        browser.get(OPPORTUNITIES_URL % org)
+        if not is_logged_in(browser):
+            errprint("login unsuccessful")
+            with open(FAILED_LOGIN_RESULT, 'w+') as f:
+                f.write(browser.page_source)
+                errprint("failed login result page is at %s" % FAILED_LOGIN_RESULT)
+            sys.exit(1)
 
     content = str(browser.page_source)
 
@@ -199,27 +201,18 @@ def wait4download(directory, timeout, nfiles=None):
 
 
 def is_logged_in(browser):
-    # a redirect to a page with a login means that you have NOT successfully logged in.
     # a page with a login has "Sign In" in text.
     success = "Sign in to Timecounts" not in str(browser.page_source)
-    if not success:
-        # with open('/tmp/opportunities_successful_login_result.html', 'w+') as f:
-        # f.write(browser.page_source)
-        # else:
-        with open(FAILED_LOGIN_RESULT, 'w+') as f:
-            f.write(browser.page_source)
-            errprint("failed login result page is at %s" % FAILED_LOGIN_RESULT)
-            sys.exit(1)
-
     return success
 
 
 def get_browser():
     options = webdriver.ChromeOptions()
-    options.add_argument('headless')
-    options.add_argument('no-sandbox')
-    options.add_argument('disable-dev-shm-usage')
-    options.add_argument(f'user-agent={USER_AGENT}')
+    options.add_argument('--headless')
+    options.add_argument('--no-sandbox')
+    options.add_argument('--disable-dev-shm-usage')
+    options.add_argument(f'--user-agent={USER_AGENT}')
+    options.add_argument(f'--user-data-dir={BROWSER_CACHE_DIR}')
     # options.add_experimental_option("prefs", prefs)
     # browser.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS)
     return get_webdriver_for("chrome", options=options)
